@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@300;400;500&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root { --sand: #F5EDD6; --terra: #C4622D; --ocean: #1B4F72; --pine: #2E6B45; --cream: #FAF6EE; --dark: #1A1A1A; --mid: #666; --light: #E8E0CC; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--cream); color: var(--dark); min-height: 100vh; padding-bottom: 40px; }
+  header { background: var(--ocean); padding: 20px 16px 16px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 12px rgba(0,0,0,0.2); }
+  header h1 { font-family: 'Playfair Display', serif; color: var(--sand); font-size: 1.4rem; }
+  header p { color: rgba(245,237,214,0.7); font-size: 0.72rem; margin-top: 2px; font-weight: 300; }
+  .section-label { font-size: 0.65rem; font-weight: 500; letter-spacing: 2.5px; text-transform: uppercase; color: var(--mid); padding: 20px 16px 8px; }
+  .card { margin: 0 12px 10px; background: white; border-radius: 14px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.07); border: 1px solid var(--light); }
+  .card-header { display: flex; align-items: center; padding: 14px 16px; cursor: pointer; gap: 12px; user-select: none; -webkit-tap-highlight-color: transparent; }
+  .card-header:active { background: var(--sand); }
+  .date-badge { background: var(--ocean); color: white; border-radius: 10px; padding: 6px 10px; text-align: center; min-width: 52px; flex-shrink: 0; }
+  .date-badge .day { font-size: 1.1rem; font-weight: 700; line-height: 1; }
+  .date-badge .mon { font-size: 0.6rem; letter-spacing: 1px; opacity: 0.85; margin-top: 1px; }
+  .card-title { flex: 1; }
+  .card-title h3 { font-size: 0.9rem; font-weight: 500; color: var(--dark); line-height: 1.3; }
+  .card-title p { font-size: 0.72rem; color: var(--mid); margin-top: 2px; }
+  .status-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .status-dot.booked { background: var(--pine); }
+  .status-dot.pending { background: var(--terra); }
+  .status-dot.open { background: #888; }
+  .chevron { color: var(--mid); font-size: 0.8rem; transition: transform 0.25s; flex-shrink: 0; }
+  .card.open .chevron { transform: rotate(90deg); }
+  .card-body { display: none; padding: 0 16px 16px; border-top: 1px solid var(--light); animation: fadeIn 0.2s ease; }
+  .card.open .card-body { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+  .info-row { display: flex; align-items: flex-start; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--light); font-size: 0.8rem; }
+  .info-row:last-child { border-bottom: none; }
+  .info-icon { font-size: 1rem; flex-shrink: 0; width: 20px; text-align: center; margin-top: 1px; }
+  .info-content { flex: 1; }
+  .info-label { font-size: 0.65rem; color: var(--mid); letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 2px; }
+  .info-value { color: var(--dark); line-height: 1.4; }
+  .time-bar { background: var(--sand); border-radius: 8px; padding: 10px 12px; margin: 10px 0; font-size: 0.75rem; }
+  .time-bar .route { display: flex; align-items: center; gap: 6px; font-weight: 500; color: var(--ocean); margin-bottom: 6px; }
+  .time-row { display: flex; justify-content: space-between; color: var(--mid); margin-top: 3px; }
+  .time-arrival { font-weight: 500; color: var(--terra); }
+  .link-btn { display: inline-flex; align-items: center; gap: 6px; background: var(--ocean); color: white; border-radius: 8px; padding: 8px 14px; font-size: 0.75rem; font-weight: 500; text-decoration: none; margin: 4px 4px 0 0; }
+  .link-btn.secondary { background: var(--terra); }
+  .link-btn.green { background: var(--pine); }
+  .status-badge { display: inline-block; border-radius: 20px; padding: 3px 10px; font-size: 0.68rem; font-weight: 500; }
+  .status-badge.booked { background: #E8F5E9; color: var(--pine); }
+  .status-badge.pending { background: #FFF3E0; color: var(--terra); }
+  .status-badge.open { background: #F5F5F5; color: #888; }
+  .prep-card { margin: 0 12px 10px; background: #FFF8F0; border: 1.5px solid var(--terra); border-radius: 14px; padding: 14px 16px; }
+  .prep-card h4 { font-size: 0.75rem; letter-spacing: 1px; text-transform: uppercase; color: var(--terra); margin-bottom: 8px; }
+  .prep-item { display: flex; align-items: flex-start; gap: 10px; padding: 6px 0; font-size: 0.8rem; border-bottom: 1px solid rgba(196,98,45,0.15); }
+  .prep-item:last-child { border-bottom: none; }
+  .ferry-card .card-header { background: var(--ocean); }
+  .ferry-card .card-title h3 { color: white; }
+  .ferry-card .card-title p { color: rgba(255,255,255,0.6); }
+  .ferry-card .chevron { color: rgba(255,255,255,0.6); }
+  .ferry-card .date-badge { background: rgba(255,255,255,0.15); }
+  .ferry-card .card-body { background: #f0f4f8; border-top-color: #dde4ec; }
+  .mallorca-card .card-header { background: var(--pine); }
+  .mallorca-card .card-title h3 { color: white; }
+  .mallorca-card .card-title p { color: rgba(255,255,255,0.6); }
+  .mallorca-card .chevron { color: rgba(255,255,255,0.6); }
+  .mallorca-card .date-badge { background: rgba(255,255,255,0.15); }
+  .mallorca-card .card-body { background: #f0f5f2; border-top-color: #cce0d4; }
+  .act-item { padding: 8px 0; border-bottom: 1px solid var(--light); }
+  .act-item:last-child { border-bottom: none; }
+  .act-name { font-size: 0.82rem; font-weight: 500; }
+  .act-desc { font-size: 0.72rem; color: var(--mid); margin-top: 2px; line-height: 1.4; }
+  .act-dist { font-size: 0.68rem; color: var(--terra); margin-top: 2px; }
+  .rest-item { padding: 8px 0; border-bottom: 1px solid var(--light); }
+  .rest-item:last-child { border-bottom: none; }
+  .rest-name { font-size: 0.82rem; font-weight: 500; }
+  .rest-desc { font-size: 0.72rem; color: var(--mid); margin-top: 2px; line-height: 1.4; }
+  .rest-walk { font-size: 0.68rem; color: var(--pine); margin-top: 2px; }
+  .voucher-box { background: #FFF8E1; border: 1.5px solid #F9A825; border-radius: 10px; padding: 10px 12px; margin: 8px 0; font-size: 0.78rem; }
+  .voucher-box strong { color: #E65100; }
+  .section-divider { text-align: center; padding: 12px 16px 4px; font-family: 'Playfair Display', serif; font-size: 1rem; color: var(--terra); }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🐾 Mallorca 2026</h1>
+  <p>Christian & Capo · 17. Mai – 20. Juni · Stand: 13.05.2026</p>
+</header>
+
+
+
+<div class="section-label">Anreise · 17.–22. Mai</div>
+
+<!-- ETAPPE 1: Anneyron -->
+<div class="card" id="c1">
+  <div class="card-header" onclick="toggle('c1')">
+    <div class="date-badge"><div class="day">17</div><div class="mon">MAI</div></div>
+    <div class="card-title"><h3>Baden → Anneyron</h3><p>Flower Camping La Châtaigneraie · Drôme</p></div>
+    <div class="status-dot booked"></div><div class="chevron">›</div>
+  </div>
+  <div class="card-body">
+    <div class="time-bar">
+      <div class="route">🚗 Baden → Anneyron</div>
+      <div class="time-row"><span>Abfahrt 10:00</span><span>463 km</span></div>
+      <div class="time-row"><span>Fahrzeit ~4h45 + Pausen Capo ~2h</span><span class="time-arrival">Ankunft ~16:45</span></div>
+      <div class="time-row"><span style="color:var(--terra)">⏱ Verfügbar: Abendessen</span></div>
+    </div>
+    <div class="info-row"><div class="info-icon">🏕</div><div class="info-content">
+      <div class="info-label">Unterkunft</div>
+      <div class="info-value"><strong>Flower Camping La Châtaigneraie</strong><br>50 Route de Font-Flacher, 26140 Anneyron<br>📞 +33 4 75 31 43 33<br>Check-in: ab 15:00 · Check-out: vor 12:00<br>📍 GPS: 45.255, 4.904 · <a href="https://maps.google.com/?q=45.255,4.904" target="_blank" style="color:var(--ocean)">Google Maps öffnen</a></div>
+    </div></div>
+    <div class="info-row"><div class="info-icon">📋</div><div class="info-content">
+      <div class="info-label">Buchung</div>
+      <div class="info-value"><span class="status-badge booked">✅ Gebucht & bezahlt €125</span><br>Ref: BS00000748 · Mobilheim O'phéa 2ch<br>⚠️ Bezahlt 2 Nächte, bleibe nur 1 (17./18.) — Rückerstattung angefragt</div>
+    </div></div>
+    <div class="info-row"><div class="info-icon">🍽</div><div class="info-content">
+      <div class="info-label">Restaurants</div>
+      <div class="rest-item"><div class="rest-name">Restaurant La Châtaigneraie</div><div class="rest-desc">Direkt am Camping, täglich Mittag & Abend. Terrasse. Spezialität: Ravioles de la Drôme, Pizzas. Plats à emporter möglich.</div><div class="rest-walk">🚶 0 min · direkt am Camping</div></div>
+      <div class="rest-item"><div class="rest-name">La Treille à Champagne</div><div class="rest-desc">Traditionelle Küche im Herzen der Weinberge. Empfohlen für Ravioles-Gratin.</div><div class="rest-walk">🚗 ~15 min</div></div>
+    </div></div>
+    <div class="info-row"><div class="info-icon">🐾</div><div class="info-content">
+      <div class="info-label">Aktivitäten mit Capo</div>
+      <div class="act-item"><div class="act-name">🚴 ViaRhôna / Spazierweg</div><div class="act-desc">Direkt ab Camping. Flache Route durch Obstgärten entlang des Rhône-Tals. Ideal für Capo.</div><div class="act-dist">🚶 direkt ab Camping</div></div>
+      <div class="act-item"><div class="act-name">🏰 Palais Idéal du Facteur Cheval ⭐</div><div class="act-desc">UNESCO-Welterbe! Ein Postbote baute 33 Jahre allein diesen traumhaften Palast aus Steinen. Absolutes Highlight. Hund an Leine im Aussenbereich erlaubt.</div><div class="act-dist">🚗 ~15 min · Hauterives</div></div>
+      <div class="act-item"><div class="act-name">🥾 Wanderung "Tournée du Facteur"</div><div class="act-desc">9 km Rundwanderung auf Spuren des Facteur Cheval. Wälder, Bachläufe, Panorama. Bach für Capo zum Abkühlen!</div><div class="act-dist">🚗 ~15 min · Start: Hauterives</div></div>
+      <div class="act-item"><div class="act-name">🏺 Jars Céramistes</div><div class="act-desc">Renommierte Keramikmanufaktur seit 1857 direkt in Anneyron. Schöner Laden mit hochwertiger Drôme-Keramik.</div><div class="act-dist">🚗 ~5 min · Anneyron</div></div>
+    </div></div>
+    <div style="margin-top:10px">
+      <a href="https://www.chataigneraie.com" class="link-btn" target="_blank">🌐 Website</a>
+      <a href="https://maps.google.com/?q=50+Route+Font-Flacher+26140+Anneyron" class="link-btn secondary" target="_blank">📍 Maps</a>
+      <a href="https://www.hauterives.com/palais-ideal/" class="link-btn green" target="_blank">🏰 Facteur Cheval</a>
+      <a href="https://1drv.ms/b/c/12622bafce4be316/IQBgiX2InRj7QLLjL0g2nUgtAfAMpTHIvqiE3zi6ftamRQo?e=hR78Xf" class="link-btn green" target="_blank">📄 Zahlungsbeleg</a>
+      <a href="https://1drv.ms/b/c/12622bafce4be316/IQC1hLiaxIU9TILxeVB0-qDdAQ9t0-cnE67B4XNzNie_AIo?e=fddVt3" class="link-btn green" target="_blank">📋 Reservationsbestätigung</a>
+    </div>
+  </div>
+</div>
+
+<!-- ETAPPE 2: La Palme -->
+<div class="card" id="c2">
+  <div class="card-header" onclick="toggle('c2')">
+    <div class="date-badge"><div class="day">18</div><div class="mon">MAI</div></div>
+    <div class="card-title"><h3>Anneyron → La Palme</h3><p>Camping La Palme · Leucate (Aude)</p></div>
+    <div class="status-dot booked"></div><div class="chevron">›</div>
+  </div>
+  <div class="card-body">
+    <div class="time-bar">
+      <div class="route">🚗 Anneyron → La Palme</div>
+      <div class="time-row"><span>Abfahrt 10:00</span><span>364 km</span></div>
+      <div class="time-row"><span>Fahrzeit ~3h45 + Pausen Capo ~1.5h</span><span class="time-arrival">Ankunft ~15:15</span></div>
+      <div class="time-row"><span style="color:var(--pine)">⏱ Verfügbar: Nachmittag + Abendessen</span></div>
+    </div>
+    <div class="info-row"><div class="info-icon">🏕</div><div class="info-content">
+      <div class="info-label">Unterkunft</div>
+      <div class="info-value"><strong>Camping La Palme</strong><br>79 Chemin du Stade, 11480 La Palme (Aude)<br>Tente Ecolodge 20m², 2 Zimmer, Terrasse<br>📞 +33 4 68 48 14 06<br>📍 GPS: 42.972, 2.997 · <a href="https://maps.google.com/?q=42.972,2.997" target="_blank" style="color:var(--ocean)">Google Maps öffnen</a></div>
+    </div></div>
+    <div class="info-row"><div class="info-icon">📋</div><div class="info-content">
+      <div class="info-label">Buchung</div>
+      <div class="info-value"><span class="status-badge booked">✅ Gebucht & bezahlt €80.53</span><br>Ref: Commande 18386849</div>
+    </div></div>
+    <div class="info-row"><div class="info-icon">🍽</div><div class="info-content">
+      <div class="info-label">Restaurants</div>
+      <div class="rest-item"><div class="rest-name">L'Écho des Saisons</div><div class="rest-desc">Regionale Küche, lokale Produkte, sehr empfohlen.</div><div class="rest-walk">🚶 ~3 min ab Camping</div></div>
+      <div class="rest-item"><div class="rest-name">La Terrasse · Leucate Plage</div><div class="rest-desc">Bar-Restaurant am Strand. Bewertung 7.9/10. ☎ +33 4 68 40 23 23</div><div class="rest-walk">🚗 ~15 min · Leucate Plage</div></div>
+    </div></div>
+    <div class="info-row"><div class="info-icon">🐾</div><div class="info-content">
+      <div class="info-label">Aktivitäten mit Capo</div>
+      <div class="act-item"><div class="act-name">🏖 Plage des Coussoules</div><div class="act-desc">Naturstrand Natura 2000 — 15 km langer Strand. Hunde erlaubt ausserhalb Kitesurfzone. Capo kann frei laufen!</div><div class="act-dist">🚗 ~10 min · La Franqui</div></div>
+      <div class="act-item"><div class="act-name">🦅 Wanderung Cap Leucate</div><div class="act-desc">Küstenweg auf den Klippen vom Leucate-Leuchtturm bis La Franqui. Aussergewöhnliche Aussicht von Spanien bis Cap d'Agde.</div><div class="act-dist">🚗 ~15 min · Leucate Phare</div></div>
+      <div class="act-item"><div class="act-name">🦪 Austernfarm-Besuch</div><div class="act-desc">Lokale Austernzüchter am Étang de Leucate. Verkostung auf der Terrasse direkt am Teich.</div><div class="act-dist">🚗 ~10 min · Leucate</div></div>
+    </div></div>
+    <div style="margin-top:10px">
+      <a href="https://reservation.secureholiday.net/fr/12164/" class="link-btn green" target="_blank">📄 Buchung</a>
+      <a href="https://maps.google.com/?q=La+Palme+11480+Aude+France" class="link-btn secondary" target="_blank">📍 Maps</a>
+      <a href="https://1drv.ms/b/c/12622bafce4be316/IQAM_TR7moELTKVecix1A2IQAUiwBLjkRmTXfYw6a2sG8Fc?e=Qn2yRF" class="link-btn green" target="_blank">📄 Zahlungsbeleg</a>
+    </div>
+  </div>
+</div>
+
+<!-- ETAPPE 3: Sant Antoni -->
+<div class="card" id="c3">
+  <div class="card-header" onclick="toggle('c3')">
+    <div class="date-badge"><div class="day">19</div><div class="mon">MAI</div></div>
+    <div class="card-title"><h3>La Palme → Costa Brava</h3><p>Camping Pla de la Torre · 2 Nächte</p></div>
+    <div class="status-dot booked"></div><div class="chevron">›</div>
+  </div>
+  <div class="card-body">
+    <div class="time-bar">
+      <div class="route">🚗 La Palme → Sant Antoni de Calonge</div>
+      <div class="time-row"><span>⚠️ Langer Tag! Abfahrt 09:00</span><span>524 km</span></div>
+      <div class="time-row"><span>Fahrzeit ~5h30 + Pausen Capo ~2h</span><span class="time-arrival">Ankunft ~16:30</span></div>
+      <div class="time-row"><span style="color:var(--terra)">⏱ Verfügbar: Abendessen · früh starten!</span></div>
+    </div>
+    <div class="info-row"><div class="info-icon">🏕</div><div class="info-content">
+      <div class="info-label">Unterkunft (19.–21. Mai)</div>
+      <div class="info-value"><strong>Camping Pla de la Torre</strong><br>Carrer de les Pinedes s/n, 17252 Sant Antoni de Calonge<br>Check-in: 15:00–20:30 · Check-out: vor 12:00<br>📞 +34 972 651 009<br>📍 GPS: 41.850, 3.087 · <a href="https://maps.google.com/?q=41.850,3.087" target="_blank" style="color:var(--ocean)">Google Maps öffnen</a></div>
+    </div></div>
+    <div class="info-row"><div class="info-icon">📋</div><div class="info-content">
+      <div class="info-label">Buchung</div>
+      <div class="info-value"><span class="status-badge booked">✅ Gebucht CHF ~134</span></div>
+    </div></div>
+    <div class="info-row"><div class="info-icon">🍽</div><div class="info-content">
+      <div class="info-label">Restaurants (zu Fuss)</div>
+      <div class="rest-item"><div class="rest-name">Restaurant Guillermu ⭐</div><div class="rest-desc">Meeresfrüchte, Arròs, Terrasse Meeresblick. Km-0-Produkte.</div><div class="rest-walk">🚶 ~10 min · Passeig de Josep Mundet</div></div>
+      <div class="rest-item"><div class="rest-name">Refugi de Pescadors</div><div class="rest-desc">Llobarro al Fonoll (Wolfsbarsch mit Fenchel). Eigene Fischbecken. Terrasse Meeresblick.</div><div class="rest-walk">🚶 ~12 min · Passeig Josep Mundet 55</div></div>
+      <div class="rest-item"><div class="rest-name">Can Roc</div><div class="rest-desc">Tägl. Menü inkl. Paella/Arrós. Günstig, Meeresblick.</div><div class="rest-walk">🚶 ~10 min</div></div>
+    </div></div>
+    <div class="info-row"><div class="info-icon">🐾</div><div class="info-content">
+      <div class="info-label">Aktivitäten mit Capo</div>
+      <div class="act-item"><div class="act-name">🥾 Camí de Ronda</div><div class="act-desc">Küstenweg direkt ab Camping → Palamós. Buchten: Cala Cap Roig, Cala del Pi. Im Mai: Capo kann frei laufen!</div><div class="act-dist">🚶 direkt ab Camping</div></div>
+      <div class="act-item"><div class="act-name">🏘 Calonge — Dorf der Bücher</div><div class="act-desc">Mittelalterliches Dorf mit Burg und 7 Spezial-Buchläden.</div><div class="act-dist">🚗 ~10 min</div></div>
+      <div class="act-item"><div class="act-name">🏖 Hundefreundliche Strände</div><div class="act-desc">Playa Sant Antoni und Cala Cap Roig empfohlen.</div><div class="act-dist">🚶 ~10–20 min</div></div>
+    </div></div>
+    <div style="margin-top:10px">
+      <a href="https://www.campingpladelatorre.com" class="link-btn" target="_blank">🌐 Website</a>
+      <a href="https://maps.google.com/?q=Camping+Pla+de+la+Torre+Sant+Antoni+de+Calonge" class="link-btn secondary" target="_blank">📍 Maps</a>
+      <a href="https://guillermu.com" class="link-btn green" target="_blank">🍽 Guillermu</a>
+      <a href="https://1drv.ms/b/c/12622bafce4be316/IQDanN2J4TsDRrm0VmnqVRNQAYEeHMYo7iaTV7a0i0ojqHM?e=YpPS2O" class="link-btn green" target="_blank">📋 Buchungsbestätigung</a>
+    </div>
+  </div>
+</div>
+
+<!-- ETAPPE 4: Mataró -->
+<div class="card" id="c4">
+  <div class="card-header" onclick="toggle('c4')">
+    <div class="date-badge"><div class="day">21</div><div class="mon">MAI</div></div>
+    <div class="card-title"><h3>Costa Brava → Mataró</h3><p>Camping Barcelona · Barcelona-Tag</p></div>
+    <div class="status-dot booked"></div><div class="chevron">›</div>
+  </div>
+  <div class="card-body">
+    <div class="time-bar">
+      <div class="route">🚗 Sant Antoni → Mataró → Barcelona Terminal</div>
+      <div class="time-row"><span>Abfahrt 10:00</span><span>120 km total</span></div>
+      <div class="time-row"><span>Fahrzeit ~1h30 + Pausen ~30min</span><span class="time-arrival">Ankunft Mataró ~12:00</span></div>
+      <div class="time-row"><span style="color:var(--pine)">⏱ Ganzer Nachmittag + 22. Mai Barcelona</span></div>
+    </div>
+    <div class="info-row"><div class="info-icon">🏕</div><div class="info-content">
+      <div class="info-label">Unterkunft (21.–22. Mai, 1 Nacht)</div>
+      <div class="info-value"><strong>Camping Barcelona</strong><br>Carretera N-II km 650, 08304 Mataró<br>📞 +34 937 90 47 20<br>📍 GPS: 41.531, 2.430 · <a href="https://maps.google.com/?q=41.531,2.430" target="_blank" style="color:var(--ocean)">Google Maps öffnen</a></div>
+    </div></div>
+    <div class="info-row"><div class="info-icon">📋</div><div class="info-content">
+      <div class="info-label">Buchung</div>
+      <div class="info-value"><span class="status-badge booked">✅ 1 Nacht bestätigt · €77.99</span><br>Ref: O20260509ANGST30483161</div>
+    </div></div>
+    <div class="voucher-box">🎟 <strong>Restaurant-Gutschein:</strong> Wert der 2. Nacht als Konsumations-Gutschein. Beim Check-in einlösen!</div>
+    <div class="info-row"><div class="info-icon">🚉</div><div class="info-content">
+      <div class="info-label">Barcelona-Transfer</div>
+      <div class="info-value">Shuttle → Bahnhof Mataró → Zug alle 10 Min → Barcelona Plaça Catalunya (~40 Min)</div>
+    </div></div>
+    <div class="info-row"><div class="info-icon">🌊</div><div class="info-content">
+      <div class="info-label">Strand für Capo</div>
+      <div class="info-value">Hundefreundlicher Strand 200m vom Camping · Strandpromenade für Morgenspaziergänge</div>
+    </div></div>
+    <div style="margin-top:10px">
+      <a href="https://www.campingbarcelona.com" class="link-btn" target="_blank">🌐 Website</a>
+      <a href="https://maps.google.com/?q=Camping+Barcelona+Maresme+N-II+km650" class="link-btn secondary" target="_blank">📍 Maps</a>
+      <a href="https://1drv.ms/b/c/12622bafce4be316/IQBgkoCloo_EQIAVaBl05Y-AAdVW6Y322GrRQuXHdq66Pdk?e=SlxZJr" class="link-btn green" target="_blank">📄 Zahlungsbeleg</a>
+      <a href="https://1drv.ms/b/c/12622bafce4be316/IQCo1znDxixhS5obQoftmT15Adt8-G2mlXVFLq3-TO3mb-A?e=RUGjCH" class="link-btn green" target="_blank">📋 Buchungsbestätigung</a>
+    </div>
+  </div>
+</div>
+
+<div class="section-divider">⚓ Fähren</div>
+
+<div class="card ferry-card" id="c5">
+  <div class="card-header" onclick="toggle('c5')">
+    <div class="date-badge"><div class="day">22</div><div class="mon">MAI</div></div>
+    <div class="card-title"><h3>🚢 Barcelona → Palma</h3><p>Baleària · Schiff Sicilia</p></div>
+    <div class="status-dot booked"></div><div class="chevron">›</div>
+  </div>
+  <div class="card-body">
+    <div class="info-row"><div class="info-icon">⏰</div><div class="info-content">
+      <div class="info-label">Zeiten</div>
+      <div class="info-value">Einschiffung ab <strong>20:45</strong> · Abfahrt <strong>22:15</strong><br>Ankunft Palma: <strong>05:30</strong> (23. Mai)<br>Terminal F4 – Moll Adossat, Barcelona<br>📍 GPS: 41.345, 2.176 · <a href="https://maps.google.com/?q=41.345,2.176" target="_blank" style="color:var(--ocean)">Google Maps öffnen</a></div>
+    </div></div>
+    <div class="info-row"><div class="info-icon">📄</div><div class="info-content">
+      <div class="info-label">Buchungsdetails</div>
+      <div class="info-value">Localizador: <strong>W48ANZSN</strong><br>Kabine: CAM CUADRUPLE INT · Schiff: Sicilia · €282.50</div>
+    </div></div>
+    <div class="info-row"><div class="info-icon">🐕</div><div class="info-content">
+      <div class="info-label">Hund & Auto</div>
+      <div class="info-value">Capo ✅ · VW Golf AG 236224</div>
+    </div></div>
+    <div style="margin-top:10px">
+      <a href="https://www.balearia.com/es/web/balearia-booking/mis-reservas?documento=&localizador=W48ANZSN" class="link-btn" target="_blank">📄 Buchung verwalten</a>
+      <a href="https://maps.google.com/?q=41.345,2.176" target="_blank" class="link-btn secondary">📍 Terminal</a>
+      <a href="https://1drv.ms/b/c/12622bafce4be316/IQBR8jg7sP1jTJJ-E8cs_Ul_AeWcKcGBUlT5Pmmq6d1t_5A?e=FN3Wpq" class="link-btn green" target="_blank">📋 Buchungsbestätigung</a>
+    </div>
+  </div>
+</div>
+
+<div class="section-label">Mallorca · 23. Mai – 15. Juni</div>
+
+<div class="card mallorca-card" id="c6">
+  <div class="card-header" onclick="toggle('c6')">
+    <div class="date-badge"><div class="day">23</div><div class="mon">MAI</div></div>
+    <div class="card-title"><h3>🌴 Mallorca</h3><p>Santa Margalida · Finca bei Marco</p></div>
+    <div class="status-dot booked"></div><div class="chevron">›</div>
+  </div>
+  <div class="card-body">
+    <div class="info-row"><div class="info-icon">🏠</div><div class="info-content">
+      <div class="info-label">Unterkunft</div>
+      <div class="info-value"><strong>AirBnB bei Marco</strong><br>Santa Margalida, Mallorca<br>23. Mai – 20. Juni<br>⚠️ Verkürzung auf 16.6. vor Ort klären</div>
+    </div></div>
+    <div class="info-row"><div class="info-icon">📋</div><div class="info-content">
+      <div class="info-label">Status</div>
+      <div class="info-value"><span class="status-badge booked">✅ Gebucht & bezahlt</span></div>
+    </div></div>
+    <div class="info-row"><div class="info-icon">✈️</div><div class="info-content">
+      <div class="info-label">Silvia</div>
+      <div class="info-value">Ankunft 24. Mai per Flugzeug · Palma ~14:00</div>
+    </div></div>
+  </div>
+</div>
+
+<div class="card ferry-card" id="c7">
+  <div class="card-header" onclick="toggle('c7')">
+    <div class="date-badge"><div class="day">16</div><div class="mon">JUN</div></div>
+    <div class="card-title"><h3>🚢 Alcúdia → Toulon</h3><p>Corsica Ferries · via Menorca</p></div>
+    <div class="status-dot booked"></div><div class="chevron">›</div>
+  </div>
+  <div class="card-body">
+    <div class="info-row"><div class="info-icon">⏰</div><div class="info-content">
+      <div class="info-label">Zeiten</div>
+      <div class="info-value">Abfahrt Alcúdia: <strong>17:00</strong><br>Ankunft Toulon: <strong>11:00</strong> (17. Juni) · via Menorca<br>📍 GPS Hafen Alcúdia: 39.860, 3.130 · <a href="https://maps.google.com/?q=39.860,3.130" target="_blank" style="color:var(--ocean)">Google Maps öffnen</a></div>
+    </div></div>
+    <div class="info-row"><div class="info-icon">📄</div><div class="info-content">
+      <div class="info-label">Buchungsdetails</div>
+      <div class="info-value">Corsica Ferries · €132.97 · Innenkabine · VW Golf AG 236224 · Capo ✅<br>Reservierungsnummer: 263692903 · Corsica Club: 3158522<br>⚠️ Hund: Leine + Maulkorb an Bord · Impfausweis mitbringen</div>
+    </div></div>
+    <div style="margin-top:10px">
+      <a href="https://www.corsica-ferries.de" class="link-btn" target="_blank">🌐 Corsica Ferries</a>
+      <a href="https://maps.google.com/?q=39.860,3.130" class="link-btn secondary" target="_blank">📍 Hafen</a>
+      <a href="https://1drv.ms/b/c/12622bafce4be316/IQChZMkfUWddT5698--1r98hAfDBTT_7CgH29LRRaXsqcxc?e=f6ajwn" class="link-btn green" target="_blank">📋 Buchungsbestätigung</a>
+    </div>
+  </div>
+</div>
+
+<div class="section-label">Rückreise · 17.–19. Juni</div>
+
+<div class="card" id="c8">
+  <div class="card-header" onclick="toggle('c8')">
+    <div class="date-badge"><div class="day">17</div><div class="mon">JUN</div></div>
+    <div class="card-title"><h3>Toulon → Cassis / Provence</h3><p>Auf Mallorca planen</p></div>
+    <div class="status-dot open"></div><div class="chevron">›</div>
+  </div>
+  <div class="card-body">
+    <div class="time-bar">
+      <div class="route">🚢 Ankunft Toulon 11:00</div>
+      <div class="time-row"><span>Weiterfahrt Cassis</span><span>~40 km</span></div>
+      <div class="time-row"><span style="color:var(--pine)">⏱ Auf Mallorca planen</span></div>
+    </div>
+    <div class="info-row"><div class="info-icon">📋</div><div class="info-content">
+      <div class="info-label">Status</div>
+      <div class="info-value"><span class="status-badge open">🔍 Auf Mallorca planen</span></div>
+    </div></div>
+  </div>
+</div>
+
+<div class="card" id="c9">
+  <div class="card-header" onclick="toggle('c9')">
+    <div class="date-badge"><div class="day">19</div><div class="mon">JUN</div></div>
+    <div class="card-title"><h3>→ Heimfahrt Baden</h3><p>Spätestens Freitag 19. Juni zu Hause</p></div>
+    <div class="status-dot open"></div><div class="chevron">›</div>
+  </div>
+  <div class="card-body">
+    <div class="time-bar">
+      <div class="route">🚗 Provence → Baden</div>
+      <div class="time-row"><span>Cassis → Baden</span><span>~650 km</span></div>
+      <div class="time-row"><span>Fahrzeit ~7h + Pausen ~2h</span><span class="time-arrival">Ziel: Freitag 19. Juni abends</span></div>
+    </div>
+    <div class="info-row"><div class="info-icon">🏠</div><div class="info-content">
+      <div class="info-label">Ziel</div>
+      <div class="info-value">Rütenenweg 2, 5408 Ennetbaden 🏠</div>
+    </div></div>
+  </div>
+</div>
+
+<script>
+  function toggle(id) {
+    const card = document.getElementById(id);
+    card.classList.toggle('open');
+  }
+</script>
+</body>
+</html>
